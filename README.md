@@ -29,6 +29,34 @@ pip install -r requirements.txt
 python drowsiness_detector.py
 ```
 
+### CNN + PERCLOS (Training dan Realtime)
+
+Dataset perlu struktur folder seperti berikut:
+
+```
+train/
+  drowsy/
+  awake/
+val/
+  drowsy/
+  awake/
+test/
+  drowsy/
+  awake/
+```
+
+**Training model CNN:**
+
+```bash
+python cnn_perclos.py --mode train --train-dir train --val-dir val --test-dir test --image-size 224 --epochs 10
+```
+
+**Realtime (CNN + PERCLOS):**
+
+```bash
+python cnn_perclos.py --mode realtime --model-path drowsiness_cnn.keras --perclos-window 120 --perclos-threshold 0.4
+```
+
 ### Kontrol Keyboard
 
 - **`q`** - Keluar dari program
