@@ -1,6 +1,6 @@
-# Sistem Deteksi Kantuk Karyawan
+# Sistem Deteksi Kantuk Mahasiswa
 
-Sistem ini menggunakan computer vision untuk mendeteksi apakah karyawan mengantuk di depan komputer dengan mendeteksi:
+Sistem ini menggunakan computer vision untuk mendeteksi apakah Mahasiswa mengantuk di depan komputer dengan mendeteksi:
 - **Mata tertutup** (menggunakan Eye Aspect Ratio - EAR)
 - **Kepala menunduk** (menggunakan head pose estimation)
 
