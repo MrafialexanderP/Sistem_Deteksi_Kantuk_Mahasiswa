@@ -133,6 +133,26 @@ def load_metadata(model_path):
 
 
 def load_datasets(train_dir, val_dir, test_dir, image_size, batch_size):
+    train_path = Path(train_dir)
+    val_path = Path(val_dir) if val_dir else None
+    test_path = Path(test_dir) if test_dir else None
+
+    if not train_path.exists():
+        raise FileNotFoundError(f"Train directory tidak ditemukan: {train_dir}")
+
+    if val_path is None or not val_path.exists():
+        if test_path is not None and test_path.exists():
+            print(
+                f"Val directory '{val_dir}' tidak ditemukan. "
+                f"Gunakan test directory '{test_dir}' sebagai validation."
+            )
+            val_dir = test_dir
+        else:
+            raise FileNotFoundError(
+                f"Val directory tidak ditemukan: {val_dir}. "
+                "Sediakan --val-dir yang valid atau --test-dir yang valid sebagai fallback."
+            )
+
     train_ds = tf.keras.utils.image_dataset_from_directory(
         train_dir,
         image_size=image_size,
@@ -155,26 +175,26 @@ def load_datasets(train_dir, val_dir, test_dir, image_size, batch_size):
             shuffle=False,
         )
 
+    class_names = train_ds.class_names
+
     autotune = tf.data.AUTOTUNE
     train_ds = train_ds.prefetch(buffer_size=autotune)
     val_ds = val_ds.prefetch(buffer_size=autotune)
     if test_ds is not None:
         test_ds = test_ds.prefetch(buffer_size=autotune)
 
-    return train_ds, val_ds, test_ds
+    return train_ds, val_ds, test_ds, class_names
 
 
 def train_model(args):
     image_size = (args.image_size, args.image_size)
-    train_ds, val_ds, test_ds = load_datasets(
+    train_ds, val_ds, test_ds, class_names = load_datasets(
         args.train_dir,
         args.val_dir,
         args.test_dir,
         image_size,
         args.batch_size,
     )
-
-    class_names = train_ds.class_names
     model = build_cnn((args.image_size, args.image_size, 3), len(class_names))
     model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=args.learning_rate),
@@ -182,7 +202,18 @@ def train_model(args):
         metrics=["accuracy"],
     )
 
-    model.fit(train_ds, validation_data=val_ds, epochs=args.epochs)
+    early_stop = tf.keras.callbacks.EarlyStopping(
+        monitor="val_loss",
+        patience=3,
+        restore_best_weights=True,
+    )
+
+    model.fit(
+        train_ds,
+        validation_data=val_ds,
+        epochs=args.epochs,
+        callbacks=[early_stop],
+    )
 
     if test_ds is not None:
         results = model.evaluate(test_ds, verbose=1)
@@ -228,7 +259,15 @@ def run_realtime(args):
     print(f"PERCLOS threshold: {perclos_threshold:.2f}")
     print("Tekan 'q' untuk keluar")
 
+    start_time = time.time()
+    duration = args.realtime_duration
+    if duration > 0:
+        print(f"Durasi realtime: {duration} detik")
+
     while True:
+        if duration > 0 and time.time() - start_time >= duration:
+            print(f"\nDurasi {duration} detik selesai.")
+            break
         ret, frame = cap.read()
         if not ret:
             break
@@ -341,6 +380,7 @@ def build_parser():
     parser.add_argument("--alarm-duration", type=int, default=1200)
     parser.add_argument("--alarm-cooldown", type=float, default=2.0)
     parser.add_argument("--alarm-audio", default="", help="Path file audio wav/mp3 untuk alarm")
+    parser.add_argument("--realtime-duration", type=int, default=0, help="Durasi realtime dalam detik (0 = tanpa batas)")
     return parser
 
 

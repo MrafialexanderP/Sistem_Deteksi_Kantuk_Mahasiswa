@@ -17,7 +17,7 @@ HEAD_TILT_THRESHOLD = 30
 # Waktu sebelum alarm berbunyi (dalam detik)
 # 180 detik = 3 menit
 # 300 detik = 5 menit
-ALERT_TIME = 180  # Ubah ke 300 untuk 5 menit
+ALERT_TIME = 30  # Ubah ke 300 untuk 5 menit
 
 # ===== CAMERA SETTINGS =====
 
