@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Deteksi Kantuk</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1>Deteksi Kantuk Mahasiswa</h1>
+                <div class="status-badge">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Offline</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="main">
+            <section class="hero-section">
+                <h2 class="hero-title">Deteksi Kantuk Mahasiswa</h2>
+                <p class="hero-subtitle">Pemantauan real-time tingkat kewaspadaan mahasiswa berbasis kamera dan analisis visual</p>
+            </section>
+
+            <section class="dashboard-layout">
+                <section class="video-section">
+                    <div class="video-box">
+                        <img id="videoFeed" src="#" alt="Video Feed" class="video-feed">
+                        <div class="video-indicator hidden" id="recordingIndicator">
+                            <span class="dot"></span> Recording
+                        </div>
+                    </div>
+                    <div class="video-controls">
+                        <button class="btn btn-primary" id="startBtn" onclick="startDetection()">Mulai</button>
+                        <button class="btn btn-secondary" id="stopBtn" onclick="stopDetection()" disabled>Hentikan</button>
+                    </div>
+                </section>
+
+                <section class="stats-section">
+                    <div class="stat-card">
+                        <h3>Status</h3>
+                        <div class="stat-value" id="statusValue">-</div>
+                        <div class="stat-bar"><div class="stat-bar-fill" id="statusBar"></div></div>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>CNN Label</h3>
+                        <div class="stat-value" id="cnnLabelValue">unknown</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>Confidence</h3>
+                        <div class="stat-value" id="confidenceValue">0.00</div>
+                        <div class="stat-bar"><div class="stat-bar-fill" id="confidenceBar"></div></div>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>EAR</h3>
+                        <div class="stat-value" id="earValue">0.00</div>
+                        <div class="stat-bar"><div class="stat-bar-fill" id="earBar"></div></div>
+                        <small>Threshold: <strong>0.25</strong></small>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>PERCLOS</h3>
+                        <div class="stat-value" id="perclosValue">0.00</div>
+                        <div class="stat-bar"><div class="stat-bar-fill" id="perclosBar"></div></div>
+                        <small>Threshold: <strong>0.40</strong></small>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>FPS</h3>
+                        <div class="stat-value" id="fpsValue">0</div>
+                        <div class="stat-bar"><div class="stat-bar-fill" id="fpsBar"></div></div>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>Duration</h3>
+                        <div class="stat-value" id="durationValue">00:00</div>
+                        <div class="stat-bar"><div class="stat-bar-fill" id="durationBar"></div></div>
+                    </div>
+                </section>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2026 Sistem Deteksi Kantuk</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
