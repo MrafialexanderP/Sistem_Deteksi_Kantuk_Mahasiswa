@@ -4,6 +4,7 @@ import time
 from collections import deque
 from pathlib import Path
 
+
 import cv2
 import mediapipe as mp
 import numpy as np

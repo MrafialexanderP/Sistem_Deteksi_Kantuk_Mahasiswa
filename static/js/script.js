@@ -13,8 +13,6 @@ async function startDetection() {
             document.getElementById('startBtn').disabled = true;
             document.getElementById('stopBtn').disabled = false;
             document.getElementById('recordingIndicator').classList.remove('hidden');
-            document.getElementById('statusDot').classList.add('active');
-            document.getElementById('statusText').textContent = 'Online';
             
             const feed = document.getElementById('videoFeed');
             feed.src = '/video_feed?' + Date.now();
@@ -36,8 +34,7 @@ async function stopDetection() {
             document.getElementById('startBtn').disabled = false;
             document.getElementById('stopBtn').disabled = true;
             document.getElementById('recordingIndicator').classList.add('hidden');
-            document.getElementById('statusDot').classList.remove('active');
-            document.getElementById('statusText').textContent = 'Offline';
+            
             
             document.getElementById('videoFeed').src = '';
             

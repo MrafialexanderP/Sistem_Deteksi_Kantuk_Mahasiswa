@@ -18,7 +18,7 @@ from cnn_perclos import (
     load_metadata,
     play_alarm,
 )
-from config import ALARM_DURATION, ALARM_FREQUENCY, CAMERA_INDEX, EAR_THRESHOLD, SHOW_DEBUG_INFO
+from config import ALARM_DURATION, ALARM_FREQUENCY, CAMERA_INDEX, EAR_THRESHOLD
 
 app = Flask(__name__)
 
@@ -157,20 +157,10 @@ def generate_frames():
                 threading.Thread(target=trigger_alarm, daemon=True).start()
                 last_alarm_time = now
         else:
-            current_status = "normal"
+            current_status = "unknown"
             perclos_value = 0.0
             cnn_label = "unknown"
             cnn_confidence = 0.0
-
-        if SHOW_DEBUG_INFO:
-            cv2.putText(frame, f"CNN: {cnn_label} ({cnn_confidence:.2f})", (10, 30),
-                      cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-            cv2.putText(frame, f"PERCLOS: {perclos_value:.2f}", (10, 55),
-                      cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
-            cv2.putText(frame, f"EAR: {eye_aspect_ratio:.2f}", (10, 80),
-                      cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-            cv2.putText(frame, f"Status: {current_status.upper()}", (10, 105),
-                      cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255) if current_status == "kantuk" else (0, 255, 0), 2)
 
         frame_count += 1
         if frame_count % 10 == 0:
@@ -187,11 +177,38 @@ def generate_frames():
         camera.release()
 
 @app.route('/')
-def index():
+def root():
+    """Root route - redirect to login"""
+    return render_template('login.html')
+
+@app.route('/login')
+def login():
+    """Login page"""
+    return render_template('login.html')
+
+@app.route('/register')
+def register():
+    """Registration page"""
+    return render_template('register.html')
+
+@app.route('/student')
+def student():
+    """Student detection page"""
+    return render_template('index.html')
+
+@app.route('/admin')
+def admin():
+    """Admin monitoring dashboard"""
+    return render_template('admin.html')
+
+@app.route('/index.html')
+def index_html():
+    """Fallback for index.html direct access"""
     return render_template('index.html')
 
 @app.route('/video_feed')
 def video_feed():
+    """Video streaming endpoint"""
     return Response(generate_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 

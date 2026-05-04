@@ -8,15 +8,21 @@
 </head>
 <body>
     <div class="container">
-        <header class="header">
-            <div class="header-content">
-                <h1>Deteksi Kantuk Mahasiswa</h1>
-                <div class="status-badge">
-                    <span class="status-dot" id="statusDot"></span>
-                    <span id="statusText">Offline</span>
+        
+        <nav class="navbar">
+            <div class="navbar-content">
+                <div class="navbar-brand">
+                    <span class="brand-logo">🎓</span>
+                    <span class="brand-text">Deteksi Kantuk</span>
+                </div>
+                <div class="navbar-center">
+                    <span id="userName" class="user-greeting">Halo Mahasiswa</span>
+                </div>
+                <div class="navbar-end">
+                    <button class="btn btn-logout" id="logoutBtn">Logout</button>
                 </div>
             </div>
-        </header>
+        </nav>
 
         <main class="main">
             <section class="hero-section">
@@ -41,7 +47,7 @@
                 <section class="stats-section">
                     <div class="stat-card">
                         <h3>Status</h3>
-                        <div class="stat-value" id="statusValue">-</div>
+                        <div class="stat-value" id="statusValue">unknown</div>
                         <div class="stat-bar"><div class="stat-bar-fill" id="statusBar"></div></div>
                     </div>
 
@@ -90,6 +96,7 @@
         </footer>
     </div>
 
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
