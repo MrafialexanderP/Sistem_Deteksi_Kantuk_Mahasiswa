@@ -1,5 +1,5 @@
 from collections import deque
-from src.utils.config import PERCLOS_WINDOW
+from backend.src.utils.config import PERCLOS_WINDOW
 
 class PERCLOS:
     def __init__(self):

@@ -1,10 +1,10 @@
 import cv2
-from src.pipeline.drowsiness_pipeline import DrowsinessPipeline
-from src.utils.alarm import Alarm
+from backend.src.pipeline.drowsiness_pipeline import DrowsinessPipeline
+from backend.src.utils.alarm import Alarm
 
 # Path model & alarm
-MODEL_PATH = "models/drowsiness_cnn.keras"
-ALARM_PATH = "assets/alarm.wav"
+MODEL_PATH = "backend/models/drowsiness_cnn.keras"
+ALARM_PATH = "backend/assets/alarm.wav"
 
 # Init
 pipeline = DrowsinessPipeline(MODEL_PATH)
