@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistem Deteksi Kantuk</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-box">
+            <div class="auth-header">
+                <h1>Sistem Deteksi Kantuk</h1>
+                <p>Login untuk melanjutkan</p>
+            </div>
+
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="nim">NIM:</label>
+                    <input 
+                        type="text" 
+                        id="nim" 
+                        name="nim" 
+                        placeholder="Masukkan NIM Anda"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Masukkan password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">Login</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Belum punya akun? <a href="/register">Daftar di sini</a></p>
+            </div>
+
+            <div id="errorMessage" class="error-message hidden"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    <script>
+        // Initialize login form
+        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const nim = document.getElementById('nim').value.trim();
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMessage');
+
+            // Validate inputs
+            if (!nim || !password) {
+                errorMsg.textContent = 'NIM dan password tidak boleh kosong';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            // Get registered users from localStorage
+            const registeredUsersStr = localStorage.getItem('registeredUsers');
+            const registeredUsers = registeredUsersStr ? JSON.parse(registeredUsersStr) : [];
+
+            // Check if user is registered
+            const registeredUser = registeredUsers.find(u => u.nim === nim);
+
+            // Create user object
+            let user = {
+                nim: nim,
+                email: `${nim}@student.com`,
+                role: nim === 'admin' ? 'admin' : 'student'
+            };
+
+            if (registeredUser) {
+                // Use registered user's data
+                user.name = registeredUser.name;
+                user.email = registeredUser.email;
+            } else {
+                // If not registered, create default
+                user.name = nim === 'admin' ? 'Admin' : `Mahasiswa ${nim}`;
+            }
+
+            // Store in localStorage
+            localStorage.setItem('user', JSON.stringify(user));
+
+            // Redirect based on role
+            if (user.role === 'admin') {
+                window.location.href = '/admin';
+            } else {
+                window.location.href = '/student';
+            }
+        }
+    </script>
+</body>
+</html>

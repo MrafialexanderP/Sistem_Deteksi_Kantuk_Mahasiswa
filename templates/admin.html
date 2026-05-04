@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Sistem Deteksi Kantuk</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-dashboard.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- NAVBAR -->
+        <nav class="navbar">
+            <div class="navbar-content">
+                <div class="navbar-brand">
+                    <span class="brand-logo">🎓</span>
+                    <span class="brand-text">Dashboard Dosen</span>
+                </div>
+                <div class="navbar-center">
+                    <span id="userName" class="user-greeting">Halo Mahasiswa</span>
+                </div>
+                <div class="navbar-end">
+                    <button class="btn btn-logout" id="logoutBtn">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <main class="main">
+            <!-- PAGE HEADER -->
+            <section class="admin-header">
+                <h2>Monitoring Mahasiswa</h2>
+                <p>Pemantauan real-time status kewaspadaan mahasiswa</p>
+            </section>
+
+            <!-- TOAST NOTIFICATION -->
+            <div id="toast" class="toast hidden">
+                <span id="toastMessage"></span>
+            </div>
+
+            <!-- SUMMARY BAR (A) -->
+            <section class="summary-bar">
+                <div class="summary-item">
+                    <div class="summary-label">Total Mahasiswa</div>
+                    <div class="summary-value" id="totalMahasiswa">30</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label"> Kamera Aktif</div>
+                    <div class="summary-value" id="aktivCount">0</div>
+                </div>
+                <div class="summary-item highlight-danger">
+                    <div class="summary-label">Mengantuk</div>
+                    <div class="summary-value" id="mengantukCount">0</div>
+                </div>
+            </section>
+
+            <!-- ALERT SECTION (B) -->
+            <section id="alertSection" class="alert-section hidden">
+                <div class="alert-icon">⚠️</div>
+                <div class="alert-content">
+                    <h3>Mahasiswa Mengantuk Terdeteksi</h3>
+                    <div class="alert-list" id="alertList">
+                        <p>Mahasiswa Aktif</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STUDENT TABLE (C) -->
+            <section class="table-section">
+                <h3>Daftar Mahasiswa</h3>
+                <div class="table-wrapper">
+                    <table class="monitoring-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama</th>
+                                <th>NIM</th>
+                                <th>Kamera</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody">
+                            <!-- Rows are rendered dynamically by admin.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <p>&copy; 2026 Sistem Deteksi Kantuk</p>
+        </footer>
+    </div>
+
+    <!-- AUDIO ALERT -->
+    <audio id="alertSound" src="{{ url_for('static', filename='alarm.mp3') }}" preload="auto"></audio>
+
+    <!-- SCRIPTS -->
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>

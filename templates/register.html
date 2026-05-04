@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Sistem Deteksi Kantuk</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-box">
+            <div class="auth-header">
+                <h1>Sistem Deteksi Kantuk</h1>
+                <p>Daftar akun baru</p>
+            </div>
+
+            <form id="registerForm" class="auth-form">
+                <div class="form-group">
+                    <label for="name">Nama Lengkap:</label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        placeholder="Masukkan nama lengkap"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="nim">NIM:</label>
+                    <input 
+                        type="text" 
+                        id="nim" 
+                        name="nim" 
+                        placeholder="Masukkan NIM Anda"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="Masukkan email"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Masukkan password"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Konfirmasi Password:</label>
+                    <input 
+                        type="password" 
+                        id="confirmPassword" 
+                        name="confirmPassword" 
+                        placeholder="Konfirmasi password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">Daftar</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Sudah punya akun? <a href="/login">Login di sini</a></p>
+            </div>
+
+            <div id="errorMessage" class="error-message hidden"></div>
+            <div id="successMessage" class="success-message hidden"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    <script>
+        // Initialize register form
+        document.getElementById('registerForm').addEventListener('submit', handleRegister);
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value.trim();
+            const nim = document.getElementById('nim').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            const errorMsg = document.getElementById('errorMessage');
+            const successMsg = document.getElementById('successMessage');
+            
+            // Hide messages
+            errorMsg.classList.add('hidden');
+            successMsg.classList.add('hidden');
+
+            // Validate inputs
+            if (!name || !nim || !email || !password || !confirmPassword) {
+                errorMsg.textContent = 'Semua field harus diisi';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                errorMsg.textContent = 'Password tidak cocok';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            if (password.length < 6) {
+                errorMsg.textContent = 'Password minimal 6 karakter';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            // Create user object
+            const user = {
+                nim: nim,
+                name: name,
+                email: email,
+                role: nim === 'admin' ? 'admin' : 'student'
+            };
+
+            // Get existing registered users
+            const registeredUsersStr = localStorage.getItem('registeredUsers');
+            const registeredUsers = registeredUsersStr ? JSON.parse(registeredUsersStr) : [];
+
+            // Check if user already registered
+            const existingUserIndex = registeredUsers.findIndex(u => u.nim === nim);
+            if (existingUserIndex >= 0) {
+                // Update existing user
+                registeredUsers[existingUserIndex] = user;
+            } else {
+                // Add new user
+                registeredUsers.push(user);
+            }
+
+            // Store in localStorage
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+
+            // Show success message
+            successMsg.textContent = 'Registrasi berhasil! Silahkan login dengan akun baru Anda.';
+            successMsg.classList.remove('hidden');
+
+            // Clear form
+            document.getElementById('registerForm').reset();
+
+            // Redirect to login after 2 seconds
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
