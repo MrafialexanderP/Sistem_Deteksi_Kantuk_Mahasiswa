@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from src.utils.config import IMG_SIZE
+from backend.src.utils.config import IMG_SIZE
 
 def preprocess_image(image):
     """

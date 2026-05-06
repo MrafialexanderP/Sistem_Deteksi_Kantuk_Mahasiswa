@@ -1,7 +1,7 @@
 import numpy as np
 from tensorflow.keras.models import load_model
-from src.cnn.preprocessing import prepare_for_model
-from src.utils.config import CLASSES
+from backend.src.cnn.preprocessing import prepare_for_model
+from backend.src.utils.config import CLASSES
 
 class CNNPredictor:
     def __init__(self, model_path):

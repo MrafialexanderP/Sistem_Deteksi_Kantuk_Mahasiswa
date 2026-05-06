@@ -1,9 +1,9 @@
-from src.detection.face_detector import FaceDetector
-from src.detection.eye_cropper import crop_eyes
-from src.detection.mouth_cropper import crop_mouth
-from src.cnn.predict import CNNPredictor
-from src.perclos.perclos import PERCLOS
-from src.utils.config import PERCLOS_THRESHOLD
+from backend.src.detection.face_detector import FaceDetector
+from backend.src.detection.eye_cropper import crop_eyes
+from backend.src.detection.mouth_cropper import crop_mouth
+from backend.src.cnn.predict import CNNPredictor
+from backend.src.perclos.perclos import PERCLOS
+from backend.src.utils.config import PERCLOS_THRESHOLD
 
 class DrowsinessPipeline:
     def __init__(self, model_path):
