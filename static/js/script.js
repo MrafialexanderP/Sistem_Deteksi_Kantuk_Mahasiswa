@@ -95,7 +95,7 @@ function startUpdates() {
         } catch (error) {
             console.error('Error:', error);
         }
-    }, 100);
+    }, 250);
 }
 
 /**

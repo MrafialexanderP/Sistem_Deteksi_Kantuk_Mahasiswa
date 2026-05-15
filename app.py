@@ -1,5 +1,6 @@
 import cv2
 import time
+import threading
 from flask import Flask, Response, jsonify, render_template, request
 
 # --- 1. IMPORT SESUAI CATATAN TEMAN ---
@@ -17,6 +18,13 @@ ALARM_PATH = "backend/assets/alarm.wav"
 camera = None
 is_running = False
 detection_active = False
+output_frame = None
+frame_lock = threading.Lock()
+capture_thread = None
+
+# Yawn detection timer
+yawn_start_time = None
+yawn_duration_threshold = 2.0  # seconds
 
 # Variabel untuk mengirim data ke Frontend (API)
 current_status = "-"
@@ -34,63 +42,105 @@ current_student_info = {
 pipeline = DrowsinessPipeline(MODEL_PATH)
 alarm = Alarm(ALARM_PATH)
 
-def generate_frames():
-    global camera, is_running, detection_active
-    global current_status, current_perclos, current_eye_state, current_yawn
+def release_camera():
+    global camera
+    if camera is not None:
+        camera.release()
+        camera = None
 
-    camera = cv2.VideoCapture(0) # Buka Web Kamera
+
+def capture_loop():
+    global camera, output_frame, is_running, detection_active
+    global current_status, current_perclos, current_eye_state, current_yawn
+    global yawn_start_time
+
+    camera = cv2.VideoCapture(0)  # Buka Web Kamera
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH, 480)  # Naikkan resolusi untuk kualitas
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 360)
 
     if not camera.isOpened():
         print("Error: Cannot open camera")
         return
 
+    frame_count = 0
     while is_running and detection_active:
         ret, frame = camera.read()
         if not ret:
             break
 
-        # Balikkan frame (mirror effect) agar nyaman dilihat di layar
+        frame_count += 1
+        # Kurangi skipping untuk smoothness
+        if frame_count % 3 != 0:  # Process every 3rd frame instead of every 2nd
+            continue
+
         frame = cv2.flip(frame, 1)
 
         # --- PROSES FRAME MENGGUNAKAN PIPELINE BARU ---
         result = pipeline.process(frame)
 
-        # Update variabel global agar bisa dibaca oleh endpoint /api/status
         current_eye_state = result.get("eye_state", "-")
-        current_yawn = result.get("yawn", "-")
+        current_yawn = result.get("yawn", False)
         current_perclos = result.get("perclos", 0.0)
-        current_status = result.get("status", "Normal")
 
-        # Trigger Alarm
-        if current_status == "Drowsy":
-            alarm.play()
+        # Yawn timer logic
+        if current_yawn:
+            if yawn_start_time is None:
+                yawn_start_time = time.time()
+            elif time.time() - yawn_start_time >= yawn_duration_threshold:
+                current_status = "Drowsy"
+                alarm.play()
+            else:
+                current_status = "Normal"
+                alarm.stop()
         else:
+            yawn_start_time = None
+            current_status = "Normal"
             alarm.stop()
 
-        # --- VISUALISASI KE DALAM FRAME VIDEO ---
+        # Override status if PERCLOS is high
+        if current_perclos > 0.4:  # PERCLOS threshold
+            current_status = "Drowsy"
+            alarm.play()
+
         cv2.putText(frame, f"Eye: {current_eye_state}", (10, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
         cv2.putText(frame, f"Yawn: {current_yawn}", (10, 60),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
         cv2.putText(frame, f"PERCLOS: {current_perclos:.2f}", (10, 90),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-        
-        # Warna teks status: Merah jika ngantuk, Hijau jika normal
+
         color_status = (0, 0, 255) if current_status == "Drowsy" else (0, 255, 0)
         cv2.putText(frame, f"Status: {current_status}", (10, 120),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.9, color_status, 2)
 
-        # Encode frame ke format JPEG untuk dikirim ke HTML
         ret, buffer = cv2.imencode('.jpg', frame)
-        frame_bytes = buffer.tobytes()
+        if not ret:
+            continue
+
+        with frame_lock:
+            output_frame = buffer.tobytes()
+
+        time.sleep(0.05)  # Slightly slower to reduce CPU
+
+    release_camera()
+    alarm.stop()
+
+
+def generate_frames():
+    global output_frame
+
+    while is_running and detection_active:
+        with frame_lock:
+            frame_bytes = output_frame
+
+        if frame_bytes is None:
+            time.sleep(0.05)
+            continue
 
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
-    # Jika stop ditekan, matikan kamera dan alarm
-    if camera:
-        camera.release()
-        alarm.stop()
+        time.sleep(0.03)
 
 
 # ==========================================
@@ -128,18 +178,25 @@ def video_feed():
 # ==========================================
 @app.route('/api/start', methods=['POST'])
 def start_detection():
-    global detection_active, is_running
+    global detection_active, is_running, capture_thread
+    if detection_active and capture_thread is not None and capture_thread.is_alive():
+        return jsonify({'status': 'already_started'})
+
     is_running = True
     detection_active = True
+    capture_thread = threading.Thread(target=capture_loop, daemon=True)
+    capture_thread.start()
     return jsonify({'status': 'started'})
 
 @app.route('/api/stop', methods=['POST'])
 def stop_detection():
-    global detection_active, is_running, current_status, current_perclos
+    global detection_active, is_running, current_status, current_perclos, yawn_start_time
     detection_active = False
     is_running = False
     current_status = "-"
     current_perclos = 0.0
+    yawn_start_time = None
+    release_camera()
     alarm.stop() # Pastikan alarm mati saat distop
     return jsonify({'status': 'stopped'})
 
