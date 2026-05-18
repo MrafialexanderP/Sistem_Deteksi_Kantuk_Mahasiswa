@@ -25,11 +25,11 @@ IMG_SIZE = 64
 BATCH_SIZE = 32
 EPOCHS = 10
 
-DATASET_DIR = "dataset"
+DATASET_DIR = "Dataset"
 
-TRAIN_DIR = os.path.join(DATASET_DIR, "train")
-VAL_DIR = os.path.join(DATASET_DIR, "val")
-TEST_DIR = os.path.join(DATASET_DIR, "test")
+TRAIN_DIR = os.path.join(DATASET_DIR, "Train")
+VAL_DIR = os.path.join(DATASET_DIR, "Val")
+TEST_DIR = os.path.join(DATASET_DIR, "Test")
 
 CLASSES = ['Closed_Eyes', 'No_yawn', 'Open_Eyes', 'Yawn']
 
