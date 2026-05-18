@@ -7,7 +7,7 @@ class FaceDetector:
         self.face_mesh = self.mp_face_mesh.FaceMesh(
             static_image_mode=False,
             max_num_faces=1,
-            refine_landmarks=True
+            refine_landmarks=False
         )
 
     def get_landmarks(self, frame):

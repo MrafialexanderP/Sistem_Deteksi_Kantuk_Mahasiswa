@@ -197,7 +197,11 @@ async function fetchStatus() {
 
         // Update ONLY the real (active) student from API response
         activeStudent.active = !!data.detection_active;
-        activeStudent.status = data.status === 'kantuk' ? 'kantuk' : 'normal';
+        activeStudent.status = data.status === 'Drowsy' ? 'kantuk' : 'normal';
+
+        // Update student identity from backend (set by student page on login)
+        if (data.student_name) activeStudent.name = data.student_name;
+        if (data.student_nim)  activeStudent.nim  = data.student_nim;
 
         const currentDisplay = getDisplayStatus(activeStudent);
 
